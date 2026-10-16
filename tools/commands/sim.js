@@ -11,7 +11,7 @@ const usage = `usage: node tools/polestar.js sim <command> [options]
   sim calibrate [--fdj DIR]                            fit parameters to quest data and recordings
   sim run     --faction F [--race R] [--class C] [--paths N] [--workers W] [--seed S] [--dungeons]
               [--jobs J] [--anneal A] [--max-paths M]
-  sim robust  --faction F [--race R] [--draws K] [--top N]   robustness of the top routes
+  sim robust  --faction F [--race R] [--class C] [--draws K] [--top N]   robustness of the top routes
   sim compare --faction F [--race R] [--class C] [--guides DIR] [--pack DIR | DIR] [--to 10,20,30] [--with-optional]
               Polestar's routes vs the best found, same model
   sim bench   --faction F [--race R] [--class C]      bracket table: zones, levels, quests per 10 levels
@@ -131,10 +131,17 @@ async function run(argv) {
 		}
 		if (cmd === 'run') {
 			const faction = sim.normFaction(args.faction);
+			let cls;
+			try {
+				cls = sim.normClass(args.class);
+			} catch (err) {
+				console.error(`sim run: ${err.message}`);
+				return 2;
+			}
 			const family = args.dungeons ? 'dungeons' : 'solo';
 			for (const race of races(args, faction)) {
 				const r = await sim.runCharacter({
-					...o, faction, race, cls: args.class || null, family,
+					...o, faction, race, cls, family,
 					paths: args.paths ? Number(args.paths) : undefined,
 					workers: args.workers ? Number(args.workers) : undefined,
 					seed: args.seed ? Number(args.seed) : undefined,

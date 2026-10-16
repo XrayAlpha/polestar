@@ -307,7 +307,7 @@ sim world   [--faction F] [--rebuild]               build/cache the world model 
 sim calibrate [--fdj DIR]                            fit parameters to quest data and recordings
 sim run     --faction F [--race R] [--class C] [--paths N] [--workers W] [--seed S] [--dungeons]
             [--jobs J] [--anneal A] [--max-paths M]
-sim robust  --faction F [--race R] [--draws K] [--top N]   robustness of the top routes
+sim robust  --faction F [--race R] [--class C] [--draws K] [--top N]   robustness of the top routes
 sim compare --faction F [--race R] [--class C] [--guides DIR] [--pack DIR | DIR] [--to 10,20,30] [--with-optional]
             Polestar's routes vs the best found, same model
 sim bench   --faction F [--race R] [--class C]      bracket table: zones, levels, quests per 10 levels

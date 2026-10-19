@@ -1,5 +1,5 @@
 {
-	"_about": "Polestar's own fixes to the merged reference data (data build applies them after QuestieDB, before recordings). One entry per fact, with where the fact comes from. quests: `set` replaces fields; `escort` (true or false) exists only here, for an escort quest whose own text does not say escort or a quest whose text wrongly does (tools/lib/dsl/escort.js). npcs/objects: `set` replaces fields (Forever elite and rare ranks, which QuestieDB's Forever store lacks); `addSpawns` adds { \"<uiMapID>\": { f, pts } } maps the entity lacks (an existing map is replaced). items: `removeDrops` { npc: [ids], object: [ids] } and `removeVendors` [ids] drop wrong sources the pfQuest/QuestieDB union kept. Documented in docs/ARCHITECTURE.md (Reference data, Sources and precedence).",
+	"_about": "Polestar's own fixes to the merged reference data (data build applies them after QuestieDB, before recordings). One entry per fact, with where the fact comes from. quests: `set` replaces fields; `escort` (true or false) exists only here, for an escort quest whose own text does not say escort or a quest whose text wrongly does (tools/lib/dsl/escort.js). npcs/objects: `set` replaces fields (Forever elite and rare ranks, which QuestieDB's Forever store lacks); `addSpawns` adds { \"<uiMapID>\": { f, pts } } maps the entity lacks (an existing map is replaced). items: `removeDrops` { npc: [ids], object: [ids] } and `removeVendors` [ids] drop wrong sources the pfQuest/QuestieDB union kept; `setDrops` { npc: { id: chance }, object: { id: chance } } replaces a wrong drop chance of a source the item already has. Documented in docs/ARCHITECTURE.md (Reference data, Sources and precedence).",
 	"quests": {
 		"26": {
 			"set": {
@@ -2016,6 +2016,14 @@
 		}
 	},
 	"items": {
+		"5168": {
+			"setDrops": {
+				"npc": {
+					"2030": 0.37
+				}
+			},
+			"note": "Elder Timberling 2030 drops Timberling Seed at 0.37%, not 100% (#327). QuestieDB's drop tables disagree: its private-server table (CMaNGOS) gives the Elder 100% against 37% for the Timberlings 2022 round Denalan, its Wowhead table 0.3735% against 55.73%. The CMaNGOS value is the outlier: a 100% drop would show near 100% on Wowhead too. At 100% the Elder was the only likely dropper on Teldrassil and the arrow went 1,400 yd north past the Timberlings."
+		},
 		"5359": {
 			"removeDrops": {
 				"object": [
@@ -2023,6 +2031,14 @@
 				]
 			},
 			"note": "Lorgalis Manuscript comes only from the Pitted Iron Chest 13949 in Blackfathom Deeps (QuestieDB 1.0.5 objectDrops [13949]; Wowhead Forever item=5359 contained-in lists only 13949, checked 2026-10-12). pfQuest also lists Document Chest 176344 (Barrens/Thousand Needles), which is a different quest's chest."
+		},
+		"20519": {
+			"setDrops": {
+				"npc": {
+					"15685": 13.72
+				}
+			},
+			"note": "Southsea Kidnapper 15685 drops Southsea Pirate Hat at 13.72% (QuestieDB's Wowhead table: 13.7164), not pfQuest's 50% (#327). QuestieDB's item record leaves the Kidnapper out, so the merge kept pfQuest's chance for it, on another scale from the 10% QuestieDB gives the six other pirates (Wowhead 16.86-35.33%). At 50% it was the only likely dropper in Tanaris and the goal named it alone."
 		}
 	}
 }

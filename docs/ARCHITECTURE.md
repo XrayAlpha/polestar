@@ -4700,7 +4700,8 @@ exclusive group: pfQuest `close` united with QuestieDB `exclusiveTo`.
    evidence that a quest is in the game.
 4. **Polestar corrections** (`tools/lib/data/corrections.json`, committed):
    facts QuestieDB or pfQuest get wrong or lack, each with its source in a `note`:
-   quest fields (`set`), item sources to drop (`removeDrops`, `removeVendors`),
+   quest fields (`set`), item sources to drop (`removeDrops`, `removeVendors`)
+   or wrong drop chances to replace (`setDrops`),
    npc/object fields (`set`: the Forever elite and rare ranks QuestieDB's
    Forever store lacks, since it gives every Forever npc rank 0, and renamed
    Era records) and npc/object spawn maps (`addSpawns`). They are applied

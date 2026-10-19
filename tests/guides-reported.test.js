@@ -1515,3 +1515,32 @@ test(`${REDRIDGE}: Avtom's report (#280): Iron Pike and Iron Rivet lead to the g
 		}
 	}
 });
+
+// Pynte (#327): "Timberling Seeds quest points me to the north of Teldrassil
+// instead of just around the quest giver." QuestieDB's private-server drop
+// table gives the Elder Timberling 100% for the seed (its Wowhead table
+// 0.37%), the Timberlings round Denalan 37%: only the Elder counted as likely,
+// and the arrow went 1,400 yards north. The same shape put the Southsea
+// Kidnapper alone on Pirate Hats Ahoy! (pfQuest's 50% against 10% for the
+// other pirates). Both chances are corrected in corrections.json (setDrops).
+
+test(`${TELDRASSIL}: Pynte's report (#327): the Timberling Seed arrow stays round Denalan with the Timberlings, not with the Elder Timberlings in the north`, { skip }, () => {
+	const list = goals(TELDRASSIL);
+	const { goal } = list[at(list, 'the Timberling Seed collect', (g) => g.t === 'collect' && g.quest === 918 && g.item === 5168)];
+	const ids = (goal.fromNpcs || []).map((n) => n.npc);
+	assert.notEqual(goal.from, 'Elder Timberling', 'the goal names the Timberlings, not the Elder');
+	assert.ok(ids.includes(2022), `the Timberlings (2022) are among the droppers (${ids.join(', ')})`);
+	assert.ok(!ids.includes(2030), 'the Elder Timberling (2030) is not');
+	const denalan = { map: 1438, x: 60.9, y: 68.49 };
+	assert.ok(yards(goal, denalan) <= 150, `the arrow at ${goal.x},${goal.y} is by Denalan, not ${Math.round(yards(goal, denalan))} yd off`);
+});
+
+test('#327: Pirate Hats Ahoy! names every pirate that drops the hat, not the Southsea Kidnapper alone, in both guides', { skip }, () => {
+	for (const guide of [TANARIS_ALLIANCE, 'forever/horde/40-50/02-feralas.guide']) {
+		const list = goals(guide);
+		const { goal } = list[at(list, `${guide}: the Southsea Pirate Hat collect`, (g) => g.t === 'collect' && g.quest === 8365 && g.item === 20519)];
+		const ids = (goal.fromNpcs || []).map((n) => n.npc);
+		for (const pirate of [7855, 7856, 7857, 7858]) assert.ok(ids.includes(pirate), `${guide}: pirate ${pirate} is among the droppers (${ids.join(', ')})`);
+		assert.notEqual(goal.from, 'Southsea Kidnapper', `${guide}: the goal does not send the player after the Kidnapper alone`);
+	}
+});

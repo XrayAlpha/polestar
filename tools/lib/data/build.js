@@ -23,7 +23,7 @@ const { loadZoneQuests, applyChangeNotes, fillWowheadXp, applyWowheadFacts, BASE
 const { loadSpawnHeights, HEIGHTS_SOURCE } = require('../travel/cmangos');
 const CORRECTIONS = require('./corrections.json');
 
-// tools/lib/data/corrections.json: quests `set` fields; items `removeDrops`/`removeVendors`; npcs/objects `set`
+// tools/lib/data/corrections.json: quests `set` fields; items `removeDrops`/`setDrops`/`removeVendors`; npcs/objects `set`
 // fields and `addSpawns` maps. Every corrected record's source gains "polestar-correction".
 function applyCorrections(tables) {
 	let n = 0;
@@ -42,6 +42,9 @@ function applyCorrections(tables) {
 		const it = tables.items[id];
 		if (!it) continue;
 		for (const kind of ['npc', 'object']) for (const x of (c.removeDrops || {})[kind] || []) delete it.drops[kind][x];
+		for (const kind of ['npc', 'object']) {
+			for (const [x, chance] of Object.entries((c.setDrops || {})[kind] || {})) if (x in it.drops[kind]) it.drops[kind][x] = chance;
+		}
 		if (c.removeVendors) it.vendors = it.vendors.filter((v) => !c.removeVendors.includes(v));
 		tag(it);
 	}

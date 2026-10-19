@@ -20,3 +20,19 @@ test('every prerequisite correction blocks the quest until its prerequisites are
 	}
 	assert.deepEqual(dead, [], `corrections that set prerequisites but block nothing: ${dead.join(', ')}`);
 });
+
+test('every drop chance correction names npc or object droppers with a chance from 0 to 100, and its source', () => {
+	const bad = [];
+	for (const [id, entry] of Object.entries(corrections.items || {})) {
+		if (!entry.setDrops) continue;
+		if (typeof entry.note !== 'string' || !entry.note) bad.push(`${id}: no note`);
+		for (const [kind, chances] of Object.entries(entry.setDrops)) {
+			if (!['npc', 'object'].includes(kind)) bad.push(`${id}: kind ${kind}`);
+			for (const [source, chance] of Object.entries(chances)) {
+				if (!/^\d+$/.test(source)) bad.push(`${id}: ${kind} ${source}`);
+				if (typeof chance !== 'number' || chance < 0 || chance > 100) bad.push(`${id}: ${kind} ${source} chance ${chance}`);
+			}
+		}
+	}
+	assert.deepEqual(bad, []);
+});

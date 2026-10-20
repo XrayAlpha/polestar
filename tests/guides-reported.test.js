@@ -2213,3 +2213,20 @@ test('#327: Pirate Hats Ahoy! names every pirate that drops the hat, not the Sou
 		assert.notEqual(goal.from, 'Southsea Kidnapper', `${guide}: the goal does not send the player after the Kidnapper alone`);
 	}
 });
+
+// Deadshot (#560): "Location for the furbolg camp showing way off of the
+// location needed to satisfy the quest." QuestieDB lists four furbolg camps
+// for How Big a Threat? (984); the data build kept the first, at 50.9,34.7
+// north-east of Auberdine, so the quest's map marker sat 1,200 yards from the
+// camp by the bears where the report completed it (39.77,57.07), and the
+// guide's bare `complete 984` had no place of its own. The data now keeps the
+// camp nearest the giver (data-questie.test.js) and the guide places the goal
+// at that camp (39.9,53.9; pfQuest's area trigger 232).
+
+test('forever/alliance/03-darkshore.guide: Deadshot\'s report (#560): How Big a Threat? points at the furbolg camp by the bears, not the one north-east of Auberdine', { skip }, () => {
+	const list = goals('forever/alliance/03-darkshore.guide');
+	const { goal } = list[at(list, 'complete 984', is('complete', 984))];
+	const completed = { map: 1439, x: 39.77, y: 57.07 };
+	assert.equal(goal.map, 1439, 'the goal is on Darkshore');
+	assert.ok(yards(goal, completed) <= 200, `the arrow at ${goal.x},${goal.y} is by the camp the report completed at, not ${Math.round(yards(goal, completed))} yd off`);
+});

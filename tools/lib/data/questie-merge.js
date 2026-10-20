@@ -261,6 +261,16 @@ function objectiveTextOf(lines) {
 // the kill credits), which no quest in the store has. Counts come from the
 // objective text (the store has none), else pfQuest's count for the same
 // objective, else CMaNGOS classic-db's (fillCounts).
+// A trigger listed at several places is done at any one of them (How Big a
+// Threat?, 984: four furbolg camps, the first far north-east of Auberdine,
+// #560). The objective keeps one point: the one nearest the quest's giver
+// when it stands on that map, else the first.
+function nearestPoint(rows, at) {
+	if (!rows.length || !at) return rows[0] || null;
+	const d = (r) => Math.hypot(Number(luaGet(r, 1)) - at[0], Number(luaGet(r, 2)) - at[1]);
+	return rows.reduce((a, b) => (d(b) < d(a) ? b : a));
+}
+
 function questObjectives(q, pf, names, ctx) {
 	const text = objectiveTextOf(q.objectivesText);
 	const o = q.objectives;
@@ -293,9 +303,10 @@ function questObjectives(q, pf, names, ctx) {
 		const pfEvents = pfObj.filter((p) => p.type === 'event');
 		const ev = { type: 'event', id: pfEvents.length === 1 ? pfEvents[0].id : null, count: null, text: typeof luaGet(trig, 1) === 'string' ? luaGet(trig, 1) : null };
 		for (const [area, rows] of luaPairs(luaGet(trig, 2))) {
-			const p = luaList(rows).find((r) => Number(luaGet(r, 1)) >= 0);
-			const map = p && ctx.areaToUiMap(Number(area));
-			if (map) {
+			const map = ctx.areaToUiMap(Number(area));
+			const pts = map ? luaList(rows).filter((r) => Number(luaGet(r, 1)) >= 0) : [];
+			const p = nearestPoint(pts, ctx.giverAt ? ctx.giverAt(q, map) : null);
+			if (p) {
 				Object.assign(ev, { map, f: ctx.liveMaps.has(map) ? 'l' : 'e', x: round2(Number(luaGet(p, 1))), y: round2(Number(luaGet(p, 2))) });
 				break;
 			}
@@ -505,6 +516,12 @@ function applyQuestie(tables, qz, ctx) {
 		...ctx,
 		names: { npc: nameOf(tables.npcs), object: nameOf(tables.objects), item: nameOf(tables.items) },
 		main: (kind, id) => (id === undefined ? null : mains[kind].get(id) ?? null),
+		// The first NPC giver's first spawn on `map` ([x, y]), or null.
+		giverAt: (q, map) => {
+			const npc = tables.npcs[ids(luaGet(q.startedBy, 1))[0]];
+			const s = npc && npc.spawns && npc.spawns[map];
+			return (s && Array.isArray(s.pts) && s.pts[0]) || null;
+		},
 		added: { quests: { n: 0 } },
 		countsFilled: { n: 0 },
 		objectiveFirst: qz.objectiveFirst,
